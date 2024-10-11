@@ -1,7 +1,7 @@
 #pragma once // makes sure the header file is included only once
 enum {
     ID,
-    
+
     // key words
     TYPE_INT,
     TYPE_REAL,
@@ -37,6 +37,14 @@ enum {
     LESSEQ,
     GREATER,
     GREATEREQ,
+
+    // bitwise operators
+    BITWISE_AND,
+    BITWISE_OR,
+    BITWISE_XOR,
+    BITWISE_NOT,
+    BITWISE_SHIFT_LEFT,
+    BITWISE_SHIFT_RIGHT,
 };
 
 #define MAX_STR 127

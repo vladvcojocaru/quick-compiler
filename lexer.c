@@ -58,7 +58,7 @@ void tokenize(const char *pch) {
                 line++;
                 pch++;
                 break;
-                
+
             // DELIMITERS
             case '\0':
                 addToken(FINISH);
@@ -99,6 +99,92 @@ void tokenize(const char *pch) {
                     pch++;
                 }
 
+            case '+':
+                addToken(ADD);
+                pch++;
+                break;
+
+            case '-':
+                addToken(SUB);
+                pch++;
+                break;
+
+            case '*':
+                addToken(MUL);
+                pch++;
+                break;
+
+            case '/':
+                addToken(DIV);
+                pch++;
+                break;
+
+            case '&':
+                if(pch[1] == '&'){
+                    addToken(AND);
+                    pch += 2;
+                } else {
+                    addToken(BITWISE_AND);
+                    pch++;
+                }
+                break;
+
+            case '|':
+                if(pch[1] == '|'){
+                    addToken(OR);
+                    pch += 2;
+                } else {
+                    addToken(BITWISE_OR);
+                    pch++;
+                }
+                break;
+
+            case '!':
+                if(pch[1] == '='){
+                    addToken(NOTEQ);
+                    pch += 2;
+                } else {
+                    addToken(NOT);
+                    pch++;
+                }
+                break;
+
+            case '^':
+                addToken(BITWISE_XOR);
+                pch++;
+                break;
+
+            case '~':
+                addToken(BITWISE_NOT);
+                pch++;
+                break;
+
+            case '<':
+                if(pch[1] == '='){
+                    addToken(LESSEQ);
+                    pch += 2;
+                } else if (pch[1] == '<'){
+                    addToken(BITWISE_SHIFT_LEFT);
+                    pch += 2;
+                } else {
+                    addToken(LESS);
+                    pch++;
+                }
+            break;
+
+            case '>':
+                 if(pch[1] == '='){
+                    addToken(GREATEREQ);
+                    pch += 2;
+                } else if (pch[1] == '>'){
+                    addToken(BITWISE_SHIFT_RIGHT);
+                    pch += 2;
+                } else {
+                    addToken(GREATER);
+                    pch++;
+                }
+            
+
             // KEY WORDS
             default:
                 if (isalpha(*pch) || *pch == '_') {
@@ -107,25 +193,25 @@ void tokenize(const char *pch) {
 
                     char *text = copyn(buf, start, pch);
 
-                    if (strcmp(text, "int")) {
+                    if (strcmp(text, "int") == 0) {
                         addToken(TYPE_INT);
-                    } else if (strcmp(text, "real")) {
+                    } else if (strcmp(text, "real") == 0) {
                         addToken(TYPE_REAL);
-                    } else if (strcmp(text, "string")) {
+                    } else if (strcmp(text, "string") == 0) {
                         addToken(TYPE_STR);
-                    } else if (strcmp(text, "var")) {
+                    } else if (strcmp(text, "var") == 0) {
                         addToken(VAR);
-                    } else if (strcmp(text, "function")) {
+                    } else if (strcmp(text, "function") == 0) {
                         addToken(FUNCTION);
-                    } else if (strcmp(text, "if")) {
+                    } else if (strcmp(text, "if") == 0) {
                         addToken(IF);
-                    } else if (strcmp(text, "else")) {
+                    } else if (strcmp(text, "else") == 0) {
                         addToken(ELSE);
-                    } else if (strcmp(text, "while")) {
+                    } else if (strcmp(text, "while") == 0) {
                         addToken(WHILE);
-                    } else if (strcmp(text, "end")) {
+                    } else if (strcmp(text, "end") == 0) {
                         addToken(END);
-                    } else if (strcmp(text, "return")) {
+                    } else if (strcmp(text, "return") == 0) {
                         addToken(RETURN);
                     } else {
                         tk = addToken(ID);
