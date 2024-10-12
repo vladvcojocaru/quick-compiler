@@ -5,7 +5,7 @@
 #define MAX_INPUT_SIZE 4096
 
 int main(int argc, char* argv[]){
-    FILE *fd = fopen("test/test2.q", "r");
+    FILE *fd = fopen("test/test1.q", "r");
 
     if(fd == NULL){
         printf("File not found");

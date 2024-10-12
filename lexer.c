@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <regex.h>
+#include <stdlib.h>
 
 #include "lexer.h"
 
@@ -68,7 +69,7 @@ void tokenize(const char *pch) {
     regcomp(&regexID, "^[a-zA-z_][a-zA-Z0-9_]*", REG_EXTENDED);
     regcomp(&regexINT, "^[0-9]+", REG_EXTENDED);
     regcomp(&regexREAL, "^[0-9]+\\.[0-9]+", REG_EXTENDED);
-    regcomp(&regexID, "^\"[^\"]*\"", REG_EXTENDED);
+    regcomp(&regexSTR, "^\"[^\"]*\"", REG_EXTENDED);
 
 
     // Might as well used while(*pch != '\0){}
@@ -336,6 +337,9 @@ const char* getTokenName(int code) {
         case BITWISE_NOT: return "BITWISE_NOT";
         case BITWISE_SHIFT_LEFT: return "BITWISE_SHIFT_LEFT";
         case BITWISE_SHIFT_RIGHT: return "BITWISE_SHIFT_RIGHT";
+        case REAL: return "REAL";
+        case INT: return "INT";
+        case STRING: return "STRING";
         default: return "UNKNOWN";
     }
 }
