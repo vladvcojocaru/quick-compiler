@@ -1,6 +1,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
+#include <regex.h>
 
 #include "lexer.h"
 
@@ -54,10 +55,23 @@ void showTokens(){
 }
 
 void tokenize(const char *pch) {
-    const char *start;
-    Token *tk;
-    char buf[MAX_STR + 1];
 
+    // TODO: delete start after making regex work & buf
+    //const char *start;
+    //Token *tk;
+    //char buf[MAX_STR + 1];
+
+
+    regex_t regexID, regexINT, regexREAL, regexSTR;
+    regmatch_t match[1];
+
+    regcomp(&regexID, "^[a-zA-z_][a-zA-Z0-9_]*", REG_EXTENDED);
+    regcomp(&regexINT, "^[0-9]+", REG_EXTENDED);
+    regcomp(&regexREAL, "^[0-9]+\\.[0-9]+", REG_EXTENDED);
+    regcomp(&regexID, "^\"[^\"]*\"", REG_EXTENDED);
+
+
+    // Might as well used while(*pch != '\0){}
     for (;;) {
         switch (*pch) {
             // SPACES -> we just pretend like they don't exist
@@ -209,45 +223,76 @@ void tokenize(const char *pch) {
             break;
             
 
-            // KEY WORDS
+            // KEY WORDS & TYPES
             default:
-                // For alphabetic key words
-                if (isalpha(*pch) || *pch == '_') {
-                    for (start = pch++; isalnum(*pch) || (*pch) == '_'; pch++) {
-                    }
-
-                    char *text = copyn(buf, start, pch);
-
-                    if (strcmp(text, "int") == 0) {
+                if(regexec(&regexID, pch, 1, match, 0) == 0){
+                    char buf[MAX_STR + 1];
+                    copyn(buf, pch, pch+match[0].rm_eo);
+                    
+                    if (strcmp(buf, "int") == 0) {
                         addToken(TYPE_INT);
-                    } else if (strcmp(text, "real") == 0) {
+                    } else if (strcmp(buf, "real") == 0) {
                         addToken(TYPE_REAL);
-                    } else if (strcmp(text, "string") == 0) {
+                    } else if (strcmp(buf, "string") == 0) {
                         addToken(TYPE_STR);
-                    } else if (strcmp(text, "var") == 0) {
+                    } else if (strcmp(buf, "var") == 0) {
                         addToken(VAR);
-                    } else if (strcmp(text, "function") == 0) {
+                    } else if (strcmp(buf, "function") == 0) {
                         addToken(FUNCTION);
-                    } else if (strcmp(text, "if") == 0) {
+                    } else if (strcmp(buf, "if") == 0) {
                         addToken(IF);
-                    } else if (strcmp(text, "else") == 0) {
+                    } else if (strcmp(buf, "else") == 0) {
                         addToken(ELSE);
-                    } else if (strcmp(text, "while") == 0) {
+                    } else if (strcmp(buf, "while") == 0) {
                         addToken(WHILE);
-                    } else if (strcmp(text, "end") == 0) {
+                    } else if (strcmp(buf, "end") == 0) {
                         addToken(END);
-                    } else if (strcmp(text, "return") == 0) {
+                    } else if (strcmp(buf, "return") == 0) {
                         addToken(RETURN);
                     } else {
-                        tk = addToken(ID);
-                        strcpy(tk->text, text);
+                        Token *tk = addToken(ID);
+                        strcpy(tk->text, buf);
                     }
+                    pch += match[0].rm_eo;
+
+                } else if(regexec(&regexREAL, pch, 1, match, 0) == 0){
+                    char buf[MAX_STR + 1];
+                    copyn(buf, pch, pch + match[0].rm_eo);
+
+                    Token *tk = addToken(REAL);
+                    tk->r = atof(buf);
+
+                    pch += match[0].rm_eo;
+
+                } else if(regexec(&regexINT, pch, 1, match, 0) == 0){
+                    char buf[MAX_STR + 1];
+                    copyn(buf, pch, pch + match[0].rm_eo);
+
+                    Token *tk = addToken(INT);
+                    tk->i = atoi(buf);
+
+                    pch += match[0].rm_eo;
+
+                } else if(regexec(&regexSTR, pch, 1, match, 0) == 0){
+                    char buf[MAX_STR + 1];
+                    copyn(buf, pch, pch + match[0].rm_eo);
+
+                    Token *tk = addToken(STRING);
+                    strcpy(tk->text, buf);
+
+                    pch += match[0].rm_eo;
+
                 } else {
                     pch++;
                 }
-                break;
+                
+            break;
         }
     }
+    regfree(&regexID);
+    regfree(&regexINT);
+    regfree(&regexREAL);
+    regfree(&regexSTR);
 }
 
 

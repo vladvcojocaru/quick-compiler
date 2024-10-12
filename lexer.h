@@ -1,6 +1,9 @@
 #pragma once // makes sure the header file is included only once
 enum {
     ID,
+    REAL,
+    STRING,
+    INT,
 
     // key words
     TYPE_INT,
