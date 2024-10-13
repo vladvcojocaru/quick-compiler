@@ -3,9 +3,8 @@
 #include <string.h>
 #include <regex.h>
 #include <stdlib.h>
-//#include <uthash.h>
 
-#include "lexer.h"
+#include "../include/lexer.h"
 
 // TODO: Make tokens array dynamic
 Token tokens[MAX_TOKENS];

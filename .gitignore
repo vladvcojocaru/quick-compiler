@@ -1,5 +1,6 @@
 # Directories
-log/
-test/
+logs/
+tests/
+bin/
 # Files
 *.out
