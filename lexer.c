@@ -6,6 +6,7 @@
 
 #include "lexer.h"
 
+// TODO: Make tokens array dynamic
 Token tokens[MAX_TOKENS];
 int nTokens;
 
@@ -57,15 +58,10 @@ void showTokens(){
 
 void tokenize(const char *pch) {
 
-    // TODO: delete start after making regex work & buf
-    //const char *start;
-    //Token *tk;
-    //char buf[MAX_STR + 1];
-
-
     regex_t regexID, regexINT, regexREAL, regexSTR;
     regmatch_t match[1];
 
+    // TODO: Precompile these outside of tokenize()
     regcomp(&regexID, "^[a-zA-z_][a-zA-Z0-9_]*", REG_EXTENDED);
     regcomp(&regexINT, "^[0-9]+", REG_EXTENDED);
     regcomp(&regexREAL, "^[0-9]+\\.[0-9]+", REG_EXTENDED);
@@ -73,9 +69,11 @@ void tokenize(const char *pch) {
 
 
     // Might as well used while(*pch != '\0){}
+    // TODO: Try lookahead optimization to skip over repeating stuff like: ||, &&, etc.
     for (;;) {
         switch (*pch) {
             // SPACES -> we just pretend like they don't exist
+            // TODO: Maybe group white space into a single while to skip 
             case ' ':
 
             case '\t':
@@ -229,7 +227,7 @@ void tokenize(const char *pch) {
                 if(regexec(&regexID, pch, 1, match, 0) == 0){
                     char buf[MAX_STR + 1];
                     copyn(buf, pch, pch+match[0].rm_eo);
-                    
+                    // TODO: Instead of strcmp use a hashtable/trie for O(1) comparasion
                     if (strcmp(buf, "int") == 0) {
                         addToken(TYPE_INT);
                     } else if (strcmp(buf, "real") == 0) {
@@ -258,6 +256,7 @@ void tokenize(const char *pch) {
 
                 } else if(regexec(&regexREAL, pch, 1, match, 0) == 0){
                     char buf[MAX_STR + 1];
+                    // TODO: consider using strcpy instead of copyn (how tf do i do that??)
                     copyn(buf, pch, pch + match[0].rm_eo);
 
                     Token *tk = addToken(REAL);
@@ -284,7 +283,9 @@ void tokenize(const char *pch) {
                     pch += match[0].rm_eo;
 
                 } else {
+                    // TODO: Add error handling
                     pch++;
+
                 }
                 
             break;
