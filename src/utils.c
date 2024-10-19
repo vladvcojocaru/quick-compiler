@@ -16,6 +16,7 @@ void err(const char *fmt, ...){
     fprintf(stderr, "\n");
     exit(1);
 }
+
 void *safeAlloc(size_t nBytes){
 	void *p=malloc(nBytes);
 	if(!p)err("not enough memory");
