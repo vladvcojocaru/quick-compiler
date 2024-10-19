@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #include "../include/lexer.h"
+#include "../include/utils.h"
 
 // TODO: Make tokens array dynamic
 Token tokens[MAX_TOKENS];
@@ -22,8 +23,7 @@ void tokenize(const char *pch);
 // sets its code and line
 Token *addToken(int code) {
     if (nTokens == MAX_TOKENS)
-        // TODO: err("too many tokens");
-        return 0;
+        err("too many tokens\n");
 
     Token *tk = &tokens[nTokens];
     tk->code = code;
@@ -37,8 +37,7 @@ char *copyn(char *dest, const char *begin, const char *end) {
     char *p = dest;
 
     if (end - begin > MAX_STR)
-        // TODO: err("string too long");
-        return 0;
+        err("string too long (line: %d)\n", line);
 
     while (begin != end) *p++ = *begin++;
 
@@ -57,27 +56,7 @@ void showTokens(){
 }
 
 void tokenize(const char *pch) {
-    regex_t regexID, regexINT, regexREAL, regexSTR; //, regexIGNORE;
-    regmatch_t match[1];
    
-    if (regcomp(&regexID, "^[a-zA-Z_][a-zA-Z0-9_]*", REG_EXTENDED) != 0) {
-        fprintf(stderr, "Failed to compile regexID\n");
-        exit(1);
-    }
-    if (regcomp(&regexINT, "^[0-9]+", REG_EXTENDED) != 0) {
-        fprintf(stderr, "Failed to compile regexINT\n");
-        exit(1);
-    }
-    if (regcomp(&regexREAL, "^[0-9]+\\.[0-9]+", REG_EXTENDED) != 0) {
-        fprintf(stderr, "Failed to compile regexREAL\n");
-        exit(1);
-    }
-    if (regcomp(&regexSTR, "^\"[^\"]*\"", REG_EXTENDED) != 0) {
-        fprintf(stderr, "Failed to compile regexSTR\n");
-        exit(1);
-    }
-   
-
 
     // Might as well used while(*pch != '\0){}
     // TODO: Try lookahead optimization to skip over repeating stuff like: ||, &&, etc.
@@ -170,8 +149,7 @@ void tokenize(const char *pch) {
                     addToken(AND);
                     pch += 2;
                 } else {
-                    addToken(BITWISE_AND);
-                    pch++;
+                    err("invalid expression (line: %d)\n", line);
                 }
                 break;
 
@@ -180,8 +158,7 @@ void tokenize(const char *pch) {
                     addToken(OR);
                     pch += 2;
                 } else {
-                    addToken(BITWISE_OR);
-                    pch++;
+                    err("invalid expression (line: %d)\n", line);
                 }
                 break;
 
@@ -195,35 +172,15 @@ void tokenize(const char *pch) {
                 }
                 break;
 
-            case '^':
-                addToken(BITWISE_XOR);
-                pch++;
-                break;
-
-            case '~':
-                addToken(BITWISE_NOT);
-                pch++;
-                break;
-
             case '<':
-                if(pch[1] == '='){
-                    addToken(LESSEQ);
-                    pch += 2;
-                } else if (pch[1] == '<'){
-                    addToken(BITWISE_SHIFT_LEFT);
-                    pch += 2;
-                } else {
-                    addToken(LESS);
-                    pch++;
-                }
+                addToken(LESS);
+                pch++;
+                
             break;
 
             case '>':
                  if(pch[1] == '='){
                     addToken(GREATEREQ);
-                    pch += 2;
-                } else if (pch[1] == '>'){
-                    addToken(BITWISE_SHIFT_RIGHT);
                     pch += 2;
                 } else {
                     addToken(GREATER);
@@ -234,15 +191,21 @@ void tokenize(const char *pch) {
 
             // KEY WORDS & TYPES
             default:
-                if(regexec(&regexID, pch, 1, match, 0) == 0){
-                    char buf[MAX_STR + 1];
-                    copyn(buf, pch, pch+match[0].rm_eo);
-                    // TODO: Instead of strcmp use a hashtable/trie for O(1) comparasion
+                // Identifiers and keywords
+                if(isalpha(*pch) || *pch == '_'){
+                    const char *start = pch;
+
+                    while(isalnum(*pch) || *pch == '_')
+                        pch++;
+                    
+                    char buf[pch - start + 1];
+                    copyn(buf, start, pch);
+                    
                     if (strcmp(buf, "int") == 0) {
                         addToken(TYPE_INT);
                     } else if (strcmp(buf, "real") == 0) {
                         addToken(TYPE_REAL);
-                    } else if (strcmp(buf, "string") == 0) {
+                    } else if (strcmp(buf, "str") == 0) {
                         addToken(TYPE_STR);
                     } else if (strcmp(buf, "var") == 0) {
                         addToken(VAR);
@@ -258,57 +221,70 @@ void tokenize(const char *pch) {
                         addToken(END);
                     } else if (strcmp(buf, "return") == 0) {
                         addToken(RETURN);
-                    } else {
+                    } else {  // Identifier
                         Token *tk = addToken(ID);
                         strcpy(tk->text, buf);
                     }
-                    pch += match[0].rm_eo;
+                } else if (isdigit(*pch)){
+                    const char* start = pch;
+                    
+                    while(isdigit(*pch)){
+                        pch++;
+                    }
 
-                } else if(regexec(&regexREAL, pch, 1, match, 0) == 0){
-                    char buf[MAX_STR + 1];
-                    // TODO: consider using strcpy instead of copyn (how tf do i do that??)
-                    copyn(buf, pch, pch + match[0].rm_eo);
+                    if(*pch == '.'){
+                        if(isdigit(pch[1])){
+                            pch++;
+                            while(isdigit(*pch)){
+                                pch++;
+                            }
+                            char buf[pch - start + 1];
+                            copyn(buf, start, pch);
+                            Token *tk = addToken(REAL);
+                            tk->r = atof(buf);
+                        } else {
+                            err("Digit missing after '.' (line: %d)", line);
+                        }
+                    } else {
+                        char buf[pch - start + 1];
+                        copyn(buf, start, pch);
+                        Token *tk = addToken(INT);
+                        tk->i = atoi(buf);
+                    }
+                } else if (*pch == '"'){
+                    pch++;
+                    const char *start = pch;
 
-                    Token *tk = addToken(REAL);
-                    tk->r = atof(buf);
+                    while(*pch != '"' && *pch != '\0'){
+                        pch++;
+                    }
 
-                    pch += match[0].rm_eo;
 
-                } else if(regexec(&regexINT, pch, 1, match, 0) == 0){
-                    char buf[MAX_STR + 1];
-                    copyn(buf, pch, pch + match[0].rm_eo);
-
-                    Token *tk = addToken(INT);
-                    tk->i = atoi(buf);
-
-                    pch += match[0].rm_eo;
-
-                } else if(regexec(&regexSTR, pch, 1, match, 0) == 0){
-                    char buf[MAX_STR + 1];
-                    copyn(buf, pch, pch + match[0].rm_eo);
-
-                    Token *tk = addToken(STRING);
-                    strcpy(tk->text, buf);
-
-                    pch += match[0].rm_eo;
+                    if(*pch == '\0'){
+                        err("Unterminated string literal (line: %d)", line);
+                    } else {
+                        char buf[pch - start + 1];
+                        copyn(buf, start, pch);
+                        
+                        Token *tk = addToken(STRING);
+                        strcpy(tk->text, buf);
+                        
+                        pch++; 
+                    }
 
                 } else {
-                    // TODO: Add error handling
-                    pch++;
-
+                    err("ID ERROR (line: %d)", line);
                 }
+                    
                 
             break;
         }
     }
-    regfree(&regexID);
-    regfree(&regexINT);
-    regfree(&regexREAL);
-    regfree(&regexSTR);
+    
 }
 
 
-// Just for readability
+// TODO: Delete this after finishing lexer
 const char* getTokenName(int code) {
     switch (code) {
         case ID: return "ID";
@@ -339,15 +315,8 @@ const char* getTokenName(int code) {
         case EQUAL: return "EQUAL";
         case NOTEQ: return "NOTEQ";
         case LESS: return "LESS";
-        case LESSEQ: return "LESSEQ";
         case GREATER: return "GREATER";
         case GREATEREQ: return "GREATEREQ";
-        case BITWISE_AND: return "BITWISE_AND";
-        case BITWISE_OR: return "BITWISE_OR";
-        case BITWISE_XOR: return "BITWISE_XOR";
-        case BITWISE_NOT: return "BITWISE_NOT";
-        case BITWISE_SHIFT_LEFT: return "BITWISE_SHIFT_LEFT";
-        case BITWISE_SHIFT_RIGHT: return "BITWISE_SHIFT_RIGHT";
         case REAL: return "REAL";
         case INT: return "INT";
         case STRING: return "STRING";

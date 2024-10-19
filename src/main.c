@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "../include/lexer.h"
+#include "../include/utils.h"
 
 #define MAX_INPUT_SIZE 4096
 
@@ -18,6 +20,7 @@ int main(int argc, char* argv[]){
     input[bytes_read] = '\0';
 
     fclose(fd);
+    
     tokenize(input);
 
     printf("Tokens: \n");

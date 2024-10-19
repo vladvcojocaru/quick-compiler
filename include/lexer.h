@@ -37,17 +37,8 @@ enum {
     EQUAL,
     NOTEQ,
     LESS,
-    LESSEQ,
     GREATER,
     GREATEREQ,
-
-    // bitwise operators
-    BITWISE_AND,
-    BITWISE_OR,
-    BITWISE_XOR,
-    BITWISE_NOT,
-    BITWISE_SHIFT_LEFT,
-    BITWISE_SHIFT_RIGHT,
 };
 
 #define MAX_STR 127
