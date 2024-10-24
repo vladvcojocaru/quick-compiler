@@ -55,8 +55,7 @@ void showTokens(){
     }
 }
 
-void tokenize(const char *pch) {
-   
+void tokenize(const char *pch) { 
 
     // Might as well used while(*pch != '\0){}
     // TODO: Try lookahead optimization to skip over repeating stuff like: ||, &&, etc.
@@ -179,7 +178,7 @@ void tokenize(const char *pch) {
             break;
 
             case '>':
-                 if(pch[1] == '='){
+                if(pch[1] == '='){
                     addToken(GREATEREQ);
                     pch += 2;
                 } else {
