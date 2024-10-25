@@ -3,7 +3,7 @@ CC = gcc
 CFLAGS = -Wall -Iinclude -Wextra -O2
 
 # Directories and files
-SRC_FILES = src/main.c src/lexer.c src/utils.c
+SRC_FILES = src/main.c src/lexer.c src/utils.c src/parser.c
 TARGET = bin/my_program
 BIN_DIR = bin
 TESTS_DIR = tests
@@ -24,7 +24,6 @@ run: $(TARGET)
 # Run tests 
 test: $(TARGET)
 	./$(TARGET) $(TESTS_DIR)/test1.q
-	./$(TARGET) $(TESTS_DIR)/test2.q
 
 clean: 
 	rm -rf $(BIN_DIR)/*

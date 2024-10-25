@@ -3,6 +3,8 @@
 
 #include "../include/lexer.h"
 #include "../include/utils.h"
+#include "../include/parser.h"
+
 
 #define MAX_INPUT_SIZE 4096
 

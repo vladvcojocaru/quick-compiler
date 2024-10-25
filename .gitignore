@@ -2,6 +2,7 @@
 logs/
 tests/
 bin/
+examples/
 .vscode/
 # Files
 *.out
