@@ -45,15 +45,40 @@ char *copyn(char *dest, const char *begin, const char *end) {
     return dest;
 }
 
-void showTokens(){
-    for(int i = 0; i< nTokens; i++){
+// void showTokens(){
+//     for(int i = 0; i< nTokens; i++){
+//         Token *tk = &tokens[i];
+//         printf("Token %d: %s (line %d)\n", i, getTokenName(tk->code), tk->line);
+//         if(tk->code == ID){
+//             printf("Text: %s\n", tk->text);
+//         } else if (tk->code == STRING){
+//             printf("Text: %s\n", tk->text);
+//         } else if (tk->code == REAL){
+//             printf("Text: %f\n", tk->r);
+//         } else if (tk->code == INT){
+//             printf("Text: %d\n", tk->i);
+//         }
+//     }
+// }
+void showTokens() {
+    for (int i = 0; i < nTokens; i++) {
         Token *tk = &tokens[i];
-        printf("Token %d: %s (line %d)\n", i, getTokenName(tk->code), tk->line);
-        if(tk->code == ID){
-            printf("Text: %s\n", tk->text);
+        printf("%d %s", tk->line, getTokenName(tk->code));
+        
+        // Check if the token code has associated text or numeric values to display.
+        if (tk->code == ID || tk->code == STRING) {
+            printf(":%s", tk->text);
+        } else if (tk->code == REAL) {
+            printf(":%.2f", tk->r);
+        } else if (tk->code == INT) {
+            printf(":%d", tk->i);
         }
+        
+        // Move to the next line for each token.
+        printf("\n");
     }
 }
+
 
 void tokenize(const char *pch) { 
 
@@ -283,7 +308,6 @@ void tokenize(const char *pch) {
 }
 
 
-// TODO: Delete this after finishing lexer
 const char* getTokenName(int code) {
     switch (code) {
         case ID: return "ID";

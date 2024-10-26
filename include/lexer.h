@@ -60,3 +60,4 @@ extern int nTokens;
 
 void tokenize(const char *pch);
 void showTokens();
+const char* getTokenName(int code);

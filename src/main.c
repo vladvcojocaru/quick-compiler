@@ -3,7 +3,7 @@
 
 #include "../include/lexer.h"
 #include "../include/utils.h"
-#include "../include/parser.h"
+//#include "../include/parser.h"
 
 
 #define MAX_INPUT_SIZE 4096
@@ -17,6 +17,7 @@ int main(int argc, char* argv[]){
     char *buf = loadFile(argv[1]);
     
     tokenize(buf);
+    //parse();
 
     printf("Tokens: \n");
     showTokens();
