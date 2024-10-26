@@ -28,8 +28,81 @@ bool consume(int code){
 		}
 	return false;
 	}
+//
 
+// exprComp ::= exprAdd ( ( LESS | EQUAL ) exprAdd )?
+bool exprComp(){
+	int start = iTk;
+	printf("#exprComp: %s\n", getTokenName(tokens[iTk].code));
 
+	if(exprAdd()){
+		if(consume(LESS) || consume(EQUAL)){
+			if(exprAdd()){
+			} else return false;
+
+		}
+
+		return true;
+	}
+
+	iTk = start;
+	return false;
+}
+// exprAssign ::= ( ID ASSIGN )? exprComp
+bool exprAssign(){
+	int start = iTk;
+	printf("#exprAssign: %s\n", getTokenName(tokens[iTk].code));
+
+	if(consume(ID)){
+		if(consume(ASSIGN)){
+
+		} else {
+			return false;
+		}
+	}
+
+	if(exprComp()){
+		return true;
+	}
+	
+	iTk = start;
+	return false;
+}
+// exprLogic ::= exprAssign ( ( AND | OR ) exprAssign )*
+bool exprLogic(){
+	int start = iTk;
+	printf("#exprLogic: %s\n", getTokenName(tokens[iTk].code));
+
+	if(exprAssign()){
+		for(;;){
+			if(consume(AND) || consume(OR)){
+				if(exprAssign()){
+					continue;
+				}
+
+			} else break;	
+		}
+		return true;
+	}
+
+	iTk = start;
+	return false;
+}
+
+//expr ::= exprLogic
+bool expr(){
+	int start = iTk;
+	printf("#expr: %s\n", getTokenName(tokens[iTk].code));
+
+	if(exprLogic()){
+		return true;
+	}
+
+	iTk = start;
+	return false;
+}
+
+// TODO: Refactor code cause it's ugly asf
 // instr ::= expr? SEMICOLON | IF LPAR expr RPAR block ( ELSE block )? END | RETURN expr SEMICOLON | WHILE LPAR expr RPAR block END
 bool instr(){
 	int start = iTk;
@@ -37,10 +110,157 @@ bool instr(){
 
 	if(expr()){}
 
-	if(consume(SEMICOLON)){}
-	else if(consume(IF)){}
-	else return false;
+	if(consume(SEMICOLON)){
+		// *Copy this in else if
+		if(consume(LPAR)){
+			if(expr()){
+				if(consume(RPAR)){
+					if(block()){
+						if(consume(ELSE)){
+							if(block()){}
+							else return false;	
+						}
+						if(consume(END)){
+							if(expr()){
+								if(consume(SEMICOLON)){
+									if(consume(LPAR)){
+										if(expr()){
+											if(consume(RPAR)){
+												if(block()){
+													if(consume(END))
+														return true;
+												}
+											}
+										}
+									}
+								}
+								else if(consume(WHILE)){
+									
+									if(consume(LPAR)){
+										if(expr()){
+											if(consume(RPAR)){
+												if(block()){
+													if(consume(END))
+														return true;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+						else if(consume(RETURN)){
+							
+							if(expr()){
+								if(consume(SEMICOLON)){
+									if(consume(LPAR)){
+										if(expr()){
+											if(consume(RPAR)){
+												if(block()){
+													if(consume(END))
+														return true;
+												}
+											}
+										}
+									}
+								}
+								else if(consume(WHILE)){
+									
+									if(consume(LPAR)){
+										if(expr()){
+											if(consume(RPAR)){
+												if(block()){
+													if(consume(END))
+														return true;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	else if(consume(IF)){
 
+		if(consume(LPAR)){
+			if(expr()){
+				if(consume(RPAR)){
+					if(block()){
+						if(consume(ELSE)){
+							if(block()){}
+							else return false;	
+						}
+						if(consume(END)){
+							if(expr()){
+								if(consume(SEMICOLON)){
+									if(consume(LPAR)){
+										if(expr()){
+											if(consume(RPAR)){
+												if(block()){
+													if(consume(END))
+														return true;
+												}
+											}
+										}
+									}
+								}
+								else if(consume(WHILE)){
+									
+									if(consume(LPAR)){
+										if(expr()){
+											if(consume(RPAR)){
+												if(block()){
+													if(consume(END))
+														return true;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+						else if(consume(RETURN)){
+							
+							if(expr()){
+								if(consume(SEMICOLON)){
+									if(consume(LPAR)){
+										if(expr()){
+											if(consume(RPAR)){
+												if(block()){
+													if(consume(END))
+														return true;
+												}
+											}
+										}
+									}
+								}
+								else if(consume(WHILE)){
+									
+									if(consume(LPAR)){
+										if(expr()){
+											if(consume(RPAR)){
+												if(block()){
+													if(consume(END))
+														return true;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	iTk = start;
+	return false;
 }
 
 // funcParam ::= ID COLON baseType
@@ -149,34 +369,40 @@ bool defVar(){
 	int start = iTk;
 	printf("#defVar: %s\n", getTokenName(tokens[iTk].code));
 
-	if(consume(VAR)){
-		if(consume(ID)){
-			if(consume(COLON)){
-				if(baseType()){
-					if(consume(SEMICOLON)){
-						return true;
-					}
-				}
-			}
-		}
-	}
+	if (!consume(VAR)) {
+        tkerr("Expected 'VAR' at the beginning of a variable declaration");
+    }
+    if (!consume(ID)) {
+        tkerr("Expected identifier after 'VAR'");
+    }
+    if (!consume(COLON)) {
+        tkerr("Expected ':' after identifier in variable declaration");
+    }
+    if (!baseType()) {
+        tkerr("Expected base type after ':' in variable declaration");
+    }
+    if (!consume(SEMICOLON)) {
+        tkerr("Expected ';' at the end of variable declaration");
+    }
+
 	iTk = start;
 	return false;
 }
 
+//* Helper function
+bool processTopLevelElement(){
+	return defVar() || defFunc() || block();
+}
 // program ::= ( defVar | defFunc | block )* FINISH
 bool program(){
-	for(;;){
-		if(defVar()){}
-		else if(defFunc()){}
-		else if(block()){}
-		else break;
-		}
-	if(consume(FINISH)){
+	while (processTopLevelElement())
+
+	if(consume(FINISH))
 		return true;
-		}else tkerr("syntax error");
-	return false;
-	}
+	else 
+		tkerr("syntax error");
+		
+}
 
 void parse(){
 	iTk=0;
