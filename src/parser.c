@@ -103,7 +103,7 @@ bool defFunc() {
                             if (block()) {
                                 if (consume(END)) {
                                     return true;
-                                } else tkerr("Missing 'END' after function definition");
+                                } else tkerr("Missing 'end' after function definition");
                             }
                         }
                     } else tkerr("Missing ':' in function declaration");
@@ -165,7 +165,7 @@ bool instr() {
                         }
                         if (consume(END)) {
                             return true;
-                        } else tkerr("Missing 'END' after 'if' statement");
+                        } else tkerr("Missing 'end' after 'if' statement");
                     }
                 }
             }
@@ -183,7 +183,7 @@ bool instr() {
                     if (block()) {
                         if (consume(END)) {
                             return true;
-                        } else tkerr("Missing 'END' after 'while' loop");
+                        } else tkerr("Missing 'end' after 'while' loop");
                     }
                 }
             }
