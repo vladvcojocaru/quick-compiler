@@ -2,7 +2,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "../include/lexer.h"
 
 int iTk;         // the iterator in tokens
