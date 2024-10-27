@@ -1,12 +1,12 @@
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
 
-#include "lexer.h"
+#include "../include/lexer.h"
 
-int iTk;  // the iterator in tokens
-Token *consumed;  // the last consumed token
+int iTk;         // the iterator in tokens
+Token *consumed; // the last consumed token
 
 // same as err, but also prints the line of the current token
 _Noreturn void tkerr(const char *fmt, ...) {
@@ -50,14 +50,16 @@ bool factor();
 // program ::= ( defVar | defFunc | block )* FINISH
 bool program() {
     for (;;) {
-        if (defVar()) {}
-        else if (defFunc()) {}
-        else if (block()) {}
-        else break;
+        if (defVar()) {
+        } else if (defFunc()) {
+        } else if (block()) {
+        } else
+            break;
     }
     if (consume(FINISH)) {
         return true;
-    } else tkerr("syntax error");
+    } else
+        tkerr("syntax error");
     return false;
 }
 
@@ -74,10 +76,13 @@ bool defVar() {
                 if (baseType()) {
                     if (consume(SEMICOLON)) {
                         return true;
-                    } else tkerr("Missing ';' after variable declaration");
+                    } else
+                        tkerr("Missing ';' after variable declaration");
                 }
-            } else tkerr("Missing ':' in variable declaration");
-        } else tkerr("Missing identifier in variable declaration");
+            } else
+                tkerr("Missing ':' in variable declaration");
+        } else
+            tkerr("Missing identifier in variable declaration");
     }
     return false;
 }
@@ -90,7 +95,8 @@ bool baseType() {
     return false;
 }
 
-// defFunc ::= FUNCTION ID LPAR funcParams? RPAR COLON baseType defVar* block END
+// defFunc ::= FUNCTION ID LPAR funcParams? RPAR COLON baseType defVar* block
+// END
 bool defFunc() {
     if (consume(FUNCTION)) {
         if (consume(ID)) {
@@ -99,17 +105,24 @@ bool defFunc() {
                 if (consume(RPAR)) {
                     if (consume(COLON)) {
                         if (baseType()) {
-                            while (defVar()) {}
+                            while (defVar()) {
+                            }
                             if (block()) {
                                 if (consume(END)) {
                                     return true;
-                                } else tkerr("Missing 'end' after function definition");
+                                } else
+                                    tkerr("Missing 'end' after function "
+                                          "definition");
                             }
                         }
-                    } else tkerr("Missing ':' in function declaration");
-                } else tkerr("Missing ')' after function parameters");
-            } else tkerr("Missing '(' after function identifier");
-        } else tkerr("Missing function identifier");
+                    } else
+                        tkerr("Missing ':' in function declaration");
+                } else
+                    tkerr("Missing ')' after function parameters");
+            } else
+                tkerr("Missing '(' after function identifier");
+        } else
+            tkerr("Missing function identifier");
     }
     return false;
 }
@@ -117,7 +130,8 @@ bool defFunc() {
 // block ::= instr+
 bool block() {
     if (instr()) {
-        while (instr()) {}
+        while (instr()) {
+        }
         return true;
     }
     return false;
@@ -127,7 +141,8 @@ bool block() {
 bool funcParams() {
     if (funcParam()) {
         while (consume(COMMA)) {
-            if (!funcParam()) tkerr("Invalid function parameter after ','");
+            if (!funcParam())
+                tkerr("Invalid function parameter after ','");
         }
         return true;
     }
@@ -140,13 +155,16 @@ bool funcParam() {
         if (consume(COLON)) {
             if (baseType()) {
                 return true;
-            } else tkerr("Invalid base type in function parameter");
-        } else tkerr("Missing ':' in function parameter");
+            } else
+                tkerr("Invalid base type in function parameter");
+        } else
+            tkerr("Missing ':' in function parameter");
     }
     return false;
 }
 
-// instr ::= expr? SEMICOLON | IF LPAR expr RPAR block ( ELSE block )? END | RETURN expr SEMICOLON | WHILE LPAR expr RPAR block END
+// instr ::= expr? SEMICOLON | IF LPAR expr RPAR block ( ELSE block )? END |
+// RETURN expr SEMICOLON | WHILE LPAR expr RPAR block END
 bool instr() {
     int start = iTk;
     if (expr()) {
@@ -161,11 +179,13 @@ bool instr() {
                 if (consume(RPAR)) {
                     if (block()) {
                         if (consume(ELSE)) {
-                            if (!block()) tkerr("Expected block after 'else'");
+                            if (!block())
+                                tkerr("Expected block after 'else'");
                         }
                         if (consume(END)) {
                             return true;
-                        } else tkerr("Missing 'end' after 'if' statement");
+                        } else
+                            tkerr("Missing 'end' after 'if' statement");
                     }
                 }
             }
@@ -174,8 +194,10 @@ bool instr() {
         if (expr()) {
             if (consume(SEMICOLON)) {
                 return true;
-            } else tkerr("Missing ';' after return statement");
-        } else tkerr("Missing expression in return statement");
+            } else
+                tkerr("Missing ';' after return statement");
+        } else
+            tkerr("Missing expression in return statement");
     } else if (consume(WHILE)) {
         if (consume(LPAR)) {
             if (expr()) {
@@ -183,7 +205,8 @@ bool instr() {
                     if (block()) {
                         if (consume(END)) {
                             return true;
-                        } else tkerr("Missing 'end' after 'while' loop");
+                        } else
+                            tkerr("Missing 'end' after 'while' loop");
                     }
                 }
             }
@@ -193,15 +216,14 @@ bool instr() {
 }
 
 // expr ::= exprLogic
-bool expr() {
-    return exprLogic();
-}
+bool expr() { return exprLogic(); }
 
 // exprLogic ::= exprAssign ( ( AND | OR ) exprAssign )*
 bool exprLogic() {
     if (exprAssign()) {
         while (consume(AND) || consume(OR)) {
-            if (!exprAssign()) tkerr("Invalid expression after 'and/or'");
+            if (!exprAssign())
+                tkerr("Invalid expression after 'and/or'");
         }
         return true;
     }
@@ -215,7 +237,8 @@ bool exprAssign() {
         if (consume(ASSIGN)) {
             if (exprComp()) {
                 return true;
-            } else tkerr("Invalid expression after '='");
+            } else
+                tkerr("Invalid expression after '='");
         }
         iTk = start;
     }
@@ -226,7 +249,8 @@ bool exprAssign() {
 bool exprComp() {
     if (exprAdd()) {
         if (consume(LESS) || consume(EQUAL)) {
-            if (!exprAdd()) tkerr("Invalid expression after '<' or '='");
+            if (!exprAdd())
+                tkerr("Invalid expression after '<' or '='");
         }
         return true;
     }
@@ -237,7 +261,8 @@ bool exprComp() {
 bool exprAdd() {
     if (exprMul()) {
         while (consume(ADD) || consume(SUB)) {
-            if (!exprMul()) tkerr("Invalid expression after '+' or '-'");
+            if (!exprMul())
+                tkerr("Invalid expression after '+' or '-'");
         }
         return true;
     }
@@ -248,7 +273,8 @@ bool exprAdd() {
 bool exprMul() {
     if (exprPrefix()) {
         while (consume(MUL) || consume(DIV)) {
-            if (!exprPrefix()) tkerr("Invalid expression after '*' or '/'");
+            if (!exprPrefix())
+                tkerr("Invalid expression after '*' or '/'");
         }
         return true;
     }
@@ -263,7 +289,8 @@ bool exprPrefix() {
     return factor();
 }
 
-// factor ::= INT | REAL | STR | LPAR expr RPAR | ID ( LPAR ( expr ( COMMA expr )* )? RPAR )?
+// factor ::= INT | REAL | STR | LPAR expr RPAR | ID ( LPAR ( expr ( COMMA expr
+// )* )? RPAR )?
 bool factor() {
     if (consume(INT) || consume(REAL) || consume(STRING)) {
         return true;
@@ -272,19 +299,22 @@ bool factor() {
         if (expr()) {
             if (consume(RPAR)) {
                 return true;
-            } else tkerr("Missing ')' after expression");
+            } else
+                tkerr("Missing ')' after expression");
         }
     }
     if (consume(ID)) {
         if (consume(LPAR)) {
             if (expr()) {
                 while (consume(COMMA)) {
-                    if (!expr()) tkerr("Invalid expression after ',' in function call");
+                    if (!expr())
+                        tkerr("Invalid expression after ',' in function call");
                 }
             }
             if (consume(RPAR)) {
                 return true;
-            } else tkerr("Missing ')' after function arguments");
+            } else
+                tkerr("Missing ')' after function arguments");
         }
         return true;
     }
