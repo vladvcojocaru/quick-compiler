@@ -6,10 +6,10 @@
 #include "../include/lexer.h"
 
 int iTk;         // the iterator in tokens
-Token *consumed; // the last consumed token
+Token* consumed; // the last consumed token
 
 // same as err, but also prints the line of the current token
-_Noreturn void tkerr(const char *fmt, ...) {
+_Noreturn void tkerr(const char* fmt, ...) {
     fprintf(stderr, "error in line %d: ", tokens[iTk].line);
     va_list va;
     va_start(va, fmt);
@@ -51,14 +51,18 @@ bool factor();
 bool program() {
     for (;;) {
         if (defVar()) {
-        } else if (defFunc()) {
-        } else if (block()) {
-        } else
+        }
+        else if (defFunc()) {
+        }
+        else if (block()) {
+        }
+        else
             break;
     }
     if (consume(FINISH)) {
         return true;
-    } else
+    }
+    else
         tkerr("syntax error");
     return false;
 }
@@ -76,12 +80,15 @@ bool defVar() {
                 if (baseType()) {
                     if (consume(SEMICOLON)) {
                         return true;
-                    } else
+                    }
+                    else
                         tkerr("Missing ';' after variable declaration");
                 }
-            } else
+            }
+            else
                 tkerr("Missing ':' in variable declaration");
-        } else
+        }
+        else
             tkerr("Missing identifier in variable declaration");
     }
     return false;
@@ -110,18 +117,23 @@ bool defFunc() {
                             if (block()) {
                                 if (consume(END)) {
                                     return true;
-                                } else
+                                }
+                                else
                                     tkerr("Missing 'end' after function "
-                                          "definition");
+                                        "definition");
                             }
                         }
-                    } else
+                    }
+                    else
                         tkerr("Missing ':' in function declaration");
-                } else
+                }
+                else
                     tkerr("Missing ')' after function parameters");
-            } else
+            }
+            else
                 tkerr("Missing '(' after function identifier");
-        } else
+        }
+        else
             tkerr("Missing function identifier");
     }
     return false;
@@ -155,9 +167,11 @@ bool funcParam() {
         if (consume(COLON)) {
             if (baseType()) {
                 return true;
-            } else
+            }
+            else
                 tkerr("Invalid base type in function parameter");
-        } else
+        }
+        else
             tkerr("Missing ':' in function parameter");
     }
     return false;
@@ -184,28 +198,34 @@ bool instr() {
                         }
                         if (consume(END)) {
                             return true;
-                        } else
+                        }
+                        else
                             tkerr("Missing 'end' after 'if' statement");
                     }
                 }
             }
         }
-    } else if (consume(RETURN)) {
+    }
+    else if (consume(RETURN)) {
         if (expr()) {
             if (consume(SEMICOLON)) {
                 return true;
-            } else
+            }
+            else
                 tkerr("Missing ';' after return statement");
-        } else
+        }
+        else
             tkerr("Missing expression in return statement");
-    } else if (consume(WHILE)) {
+    }
+    else if (consume(WHILE)) {
         if (consume(LPAR)) {
             if (expr()) {
                 if (consume(RPAR)) {
                     if (block()) {
                         if (consume(END)) {
                             return true;
-                        } else
+                        }
+                        else
                             tkerr("Missing 'end' after 'while' loop");
                     }
                 }
@@ -237,7 +257,8 @@ bool exprAssign() {
         if (consume(ASSIGN)) {
             if (exprComp()) {
                 return true;
-            } else
+            }
+            else
                 tkerr("Invalid expression after '='");
         }
         iTk = start;
@@ -299,7 +320,8 @@ bool factor() {
         if (expr()) {
             if (consume(RPAR)) {
                 return true;
-            } else
+            }
+            else
                 tkerr("Missing ')' after expression");
         }
     }
@@ -313,7 +335,8 @@ bool factor() {
             }
             if (consume(RPAR)) {
                 return true;
-            } else
+            }
+            else
                 tkerr("Missing ')' after function arguments");
         }
         return true;
