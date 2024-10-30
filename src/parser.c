@@ -9,7 +9,7 @@ int iTk;         // the iterator in tokens
 Token* consumed; // the last consumed token
 
 // same as err, but also prints the line of the current token
-_Noreturn void tkerr(const char* fmt, ...) {
+_Noreturn void tokenError(const char* fmt, ...) {
     fprintf(stderr, "error in line %d: ", tokens[iTk].line);
     va_list va;
     va_start(va, fmt);
@@ -63,7 +63,7 @@ bool program() {
         return true;
     }
     else
-        tkerr("syntax error");
+        tokenError("syntax error");
     return false;
 }
 
@@ -82,14 +82,14 @@ bool defVar() {
                         return true;
                     }
                     else
-                        tkerr("Missing ';' after variable declaration");
+                        tokenError("Missing ';' after variable declaration");
                 }
             }
             else
-                tkerr("Missing ':' in variable declaration");
+                tokenError("Missing ':' in variable declaration");
         }
         else
-            tkerr("Missing identifier in variable declaration");
+            tokenError("Missing identifier in variable declaration");
     }
     return false;
 }
@@ -119,22 +119,22 @@ bool defFunc() {
                                     return true;
                                 }
                                 else
-                                    tkerr("Missing 'end' after function "
+                                    tokenError("Missing 'end' after function "
                                         "definition");
                             }
                         }
                     }
                     else
-                        tkerr("Missing ':' in function declaration");
+                        tokenError("Missing ':' in function declaration");
                 }
                 else
-                    tkerr("Missing ')' after function parameters");
+                    tokenError("Missing ')' after function parameters");
             }
             else
-                tkerr("Missing '(' after function identifier");
+                tokenError("Missing '(' after function identifier");
         }
         else
-            tkerr("Missing function identifier");
+            tokenError("Missing function identifier");
     }
     return false;
 }
@@ -154,7 +154,7 @@ bool funcParams() {
     if (funcParam()) {
         while (consume(COMMA)) {
             if (!funcParam())
-                tkerr("Invalid function parameter after ','");
+                tokenError("Invalid function parameter after ','");
         }
         return true;
     }
@@ -169,10 +169,10 @@ bool funcParam() {
                 return true;
             }
             else
-                tkerr("Invalid base type in function parameter");
+                tokenError("Invalid base type in function parameter");
         }
         else
-            tkerr("Missing ':' in function parameter");
+            tokenError("Missing ':' in function parameter");
     }
     return false;
 }
@@ -194,13 +194,13 @@ bool instr() {
                     if (block()) {
                         if (consume(ELSE)) {
                             if (!block())
-                                tkerr("Expected block after 'else'");
+                                tokenError("Expected block after 'else'");
                         }
                         if (consume(END)) {
                             return true;
                         }
                         else
-                            tkerr("Missing 'end' after 'if' statement");
+                            tokenError("Missing 'end' after 'if' statement");
                     }
                 }
             }
@@ -212,10 +212,10 @@ bool instr() {
                 return true;
             }
             else
-                tkerr("Missing ';' after return statement");
+                tokenError("Missing ';' after return statement");
         }
         else
-            tkerr("Missing expression in return statement");
+            tokenError("Missing expression in return statement");
     }
     else if (consume(WHILE)) {
         if (consume(LPAR)) {
@@ -226,7 +226,7 @@ bool instr() {
                             return true;
                         }
                         else
-                            tkerr("Missing 'end' after 'while' loop");
+                            tokenError("Missing 'end' after 'while' loop");
                     }
                 }
             }
@@ -243,7 +243,7 @@ bool exprLogic() {
     if (exprAssign()) {
         while (consume(AND) || consume(OR)) {
             if (!exprAssign())
-                tkerr("Invalid expression after 'and/or'");
+                tokenError("Invalid expression after 'and/or'");
         }
         return true;
     }
@@ -259,7 +259,7 @@ bool exprAssign() {
                 return true;
             }
             else
-                tkerr("Invalid expression after '='");
+                tokenError("Invalid expression after '='");
         }
         iTk = start;
     }
@@ -271,7 +271,7 @@ bool exprComp() {
     if (exprAdd()) {
         if (consume(LESS) || consume(EQUAL)) {
             if (!exprAdd())
-                tkerr("Invalid expression after '<' or '='");
+                tokenError("Invalid expression after '<' or '='");
         }
         return true;
     }
@@ -283,7 +283,7 @@ bool exprAdd() {
     if (exprMul()) {
         while (consume(ADD) || consume(SUB)) {
             if (!exprMul())
-                tkerr("Invalid expression after '+' or '-'");
+                tokenError("Invalid expression after '+' or '-'");
         }
         return true;
     }
@@ -295,7 +295,7 @@ bool exprMul() {
     if (exprPrefix()) {
         while (consume(MUL) || consume(DIV)) {
             if (!exprPrefix())
-                tkerr("Invalid expression after '*' or '/'");
+                tokenError("Invalid expression after '*' or '/'");
         }
         return true;
     }
@@ -322,7 +322,7 @@ bool factor() {
                 return true;
             }
             else
-                tkerr("Missing ')' after expression");
+                tokenError("Missing ')' after expression");
         }
     }
     if (consume(ID)) {
@@ -330,14 +330,14 @@ bool factor() {
             if (expr()) {
                 while (consume(COMMA)) {
                     if (!expr())
-                        tkerr("Invalid expression after ',' in function call");
+                        tokenError("Invalid expression after ',' in function call");
                 }
             }
             if (consume(RPAR)) {
                 return true;
             }
             else
-                tkerr("Missing ')' after function arguments");
+                tokenError("Missing ')' after function arguments");
         }
         return true;
     }
