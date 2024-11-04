@@ -44,12 +44,12 @@ enum {
 #define MAX_STR 127
 
 typedef struct {
-    int code;  // ID, TYPE_INT etc.
-    int line;  // Line from the input file
+    int code; // ID, TYPE_INT etc.
+    int line; // Line from the input file
     union {
-        char text[MAX_STR + 1];  // ID
-        int i;                   // TYPE_INT
-        double r;                // TYPE REAL
+        char text[MAX_STR + 1]; // ID
+        int i;                  // TYPE_INT
+        double r;               // TYPE REAL
     };
 
 } Token;
@@ -60,4 +60,4 @@ extern int nTokens;
 
 void tokenize(const char *pch);
 void showTokens();
-const char* getTokenName(int code);
+const char *getTokenName(int code);
