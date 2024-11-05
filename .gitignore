@@ -5,3 +5,4 @@ examples/
 .vscode/
 # Files
 *.o
+.clang-format
