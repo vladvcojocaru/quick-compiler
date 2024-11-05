@@ -4,4 +4,4 @@ bin/
 examples/
 .vscode/
 # Files
-*.out
+*.o
