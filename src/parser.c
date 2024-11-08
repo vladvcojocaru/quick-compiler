@@ -5,8 +5,8 @@
 
 #include "../include/lexer.h"
 
-int iTk;         // the iterator in tokens
-Token *consumed; // the last consumed token
+int iTk;          // the iterator in tokens
+Token *consumed;  // the last consumed token
 
 // same as err, but also prints the line of the current token
 _Noreturn void tokenError(const char *fmt, ...) {
@@ -138,9 +138,12 @@ bool defFunc() {
                                 if (consume(END)) {
                                     return true;
                                 } else
-                                    tokenError("Missing 'end' after function "
-                                               "definition");
+                                    tokenError(
+                                        "Missing 'end' after function "
+                                        "definition");
                             }
+                        } else {
+                            tokenError("Invalid base type for function return");
                         }
                     } else
                         tokenError("Missing ':' in function declaration");
@@ -197,8 +200,14 @@ bool instr() {
     if (expr()) {
         if (consume(SEMICOLON)) {
             return true;
+        } else {
+            tokenError("Expected ';' after expression");
         }
+
         iTk = start;
+    }
+    if (consume(SEMICOLON)) {
+        return true;
     }
     if (consume(IF)) {
         if (consume(LPAR)) {
@@ -214,6 +223,8 @@ bool instr() {
                         } else
                             tokenError("Missing 'end' after 'if' statement");
                     }
+                } else {
+                    tokenError("Missing ')' after if condition");
                 }
             }
         }
@@ -249,8 +260,7 @@ bool expr() { return exprLogic(); }
 bool exprLogic() {
     if (exprAssign()) {
         while (consume(AND) || consume(OR)) {
-            if (!exprAssign())
-                tokenError("Invalid expression after 'and/or'");
+            if (!exprAssign()) tokenError("Invalid expression after 'and/or'");
         }
         return true;
     }
@@ -276,8 +286,7 @@ bool exprAssign() {
 bool exprComp() {
     if (exprAdd()) {
         if (consume(LESS) || consume(EQUAL)) {
-            if (!exprAdd())
-                tokenError("Invalid expression after '<' or '='");
+            if (!exprAdd()) tokenError("Invalid expression after '<' or '='");
         }
         return true;
     }
@@ -288,8 +297,7 @@ bool exprComp() {
 bool exprAdd() {
     if (exprMul()) {
         while (consume(ADD) || consume(SUB)) {
-            if (!exprMul())
-                tokenError("Invalid expression after '+' or '-'");
+            if (!exprMul()) tokenError("Invalid expression after '+' or '-'");
         }
         return true;
     }
