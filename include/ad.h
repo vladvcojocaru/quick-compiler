@@ -3,9 +3,11 @@
 #include <stdbool.h>
 
 typedef struct {
-    int type;
-    bool lval;
+    int type;  // Type_*
+    bool lval; // if it is a left-value (required for types analysis)
 } Ret;
+
+extern Ret ret; // used to store data returned froom some syntactic rules
 
 enum { KIND_VAR, KIND_ARG, KIND_FN };
 
@@ -13,19 +15,37 @@ struct Symbol;
 typedef struct Symbol Symbol;
 
 struct Symbol {
-    const char *name;
-    int kind;
-    int type;
+    const char *name; // reference to a name stored in a token
+    int kind;         // KIND_*
+    int type;         // TYPE_* from token
     union {
-        Symbol *args;
-        bool local;
+        Symbol *args; // for functions: the list with the function args
+        bool local;   // for vars: if it is local
     };
-    Symbol *next;
+    Symbol *next; // link to the next Symbol in list
 };
+
+struct Domain;
+typedef struct Domain Domain;
 
 struct Domain {
-    Domain *parent;
-    Symbol *symbols;
+    Domain *parent;  // the parent of this domain or NULL for the global domain
+    Symbol *symbols; // simple linked list of symbols
 };
 
-extern Domain *symTable;
+extern Domain
+    *symTable; // the symbols table (implemented as a stack of domains)
+
+// pointer the symbol of current function, if a function is parsed
+// or NULL outside functions
+extern Symbol *crtFn;
+
+Domain *addDomain(); // adds a new domain to ST as the current domain
+void delDomain(); // deletes the current domain from ST and returns the last one
+Symbol *searchInCurrentDomain(
+    const char *name); // searches a symbol by name inly in the current domain
+Symbol *searchSymbol(const char *name); // searches in all domains
+Symbol *addSymbol(const char *name,
+                  int kind); // adds a symbol to the current domin
+Symbol *addFnArg(Symbol *fn,
+                 const char *argName); // adds an argument to the symbol fn

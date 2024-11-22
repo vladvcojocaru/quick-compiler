@@ -4,9 +4,10 @@
 #include <stdlib.h>
 
 #include "../include/lexer.h"
+#include "../include/parser.h"
 
-int iTk;          // the iterator in tokens
-Token *consumed;  // the last consumed token
+int iTk;         // the iterator in tokens
+Token *consumed; // the last consumed token
 
 // same as err, but also prints the line of the current token
 _Noreturn void tokenError(const char *fmt, ...) {
@@ -23,56 +24,55 @@ _Noreturn void tokenError(const char *fmt, ...) {
 
 bool consume(int code) {
     // Debug print to show the current token and the expected token code
-    printf("Attempting to consume token: %s (code: %d), ",
-           getTokenName(tokens[iTk].code), tokens[iTk].code);
+    // printf("Attempting to consume token: %s (code: %d), ",
+    //        getTokenName(tokens[iTk].code), tokens[iTk].code);
 
-    // Print the relevant data based on the token type
-    if (tokens[iTk].code == ID || tokens[iTk].code == STRING) {
-        printf("text: %s, ", tokens[iTk].text);
-    } else if (tokens[iTk].code == INT) {
-        printf("integer value: %d, ", tokens[iTk].i);
-    } else if (tokens[iTk].code == REAL) {
-        printf("real value: %f, ", tokens[iTk].r);
-    }
+    // if (tokens[iTk].code == ID || tokens[iTk].code == STRING) {
+    //     printf("text: %s, ", tokens[iTk].text);
+    // } else if (tokens[iTk].code == INT) {
+    //     printf("integer value: %d, ", tokens[iTk].i);
+    // } else if (tokens[iTk].code == REAL) {
+    //     printf("real value: %f, ", tokens[iTk].r);
+    // }
 
-    printf("expected: %s, line: %d\n", getTokenName(code), tokens[iTk].line);
+    // printf("expected: %s, line: %d\n", getTokenName(code), tokens[iTk].line);
 
-    // Check if the current token matches the expected code
     if (tokens[iTk].code == code) {
         consumed = &tokens[iTk++];
         // Debug print to confirm successful consumption of a token
-        printf("Consumed token: %s (code: %d) at line: %d\n",
-               getTokenName(consumed->code), consumed->code, consumed->line);
+        // printf("Consumed token: %s (code: %d) at line: %d\n",
+        //        getTokenName(consumed->code), consumed->code, consumed->line);
         return true;
     }
 
     // Debug print when token does not match expected code
-    printf("Failed to consume token: %s (code: %d), expected: %s, line: %d\n",
-           getTokenName(tokens[iTk].code), tokens[iTk].code, getTokenName(code),
-           tokens[iTk].line);
+    // printf("Failed to consume token: %s (code: %d), expected: %s, line:
+    // %d\n",
+    //        getTokenName(tokens[iTk].code), tokens[iTk].code,
+    //        getTokenName(code), tokens[iTk].line);
 
     return false;
 }
 
 // Function definitions
-bool consume(int code);
-bool program();
-void parse();
-bool defVar();
-bool baseType();
-bool defFunc();
-bool block();
-bool funcParams();
-bool funcParam();
-bool instr();
-bool expr();
-bool exprLogic();
-bool exprAssign();
-bool exprComp();
-bool exprAdd();
-bool exprMul();
-bool exprPrefix();
-bool factor();
+// bool consume(int code);
+// bool program();
+// void parse();
+// bool defVar();
+// bool baseType();
+// bool defFunc();
+// bool block();
+// bool funcParams();
+// bool funcParam();
+// bool instr();
+// bool expr();
+// bool exprLogic();
+// bool exprAssign();
+// bool exprComp();
+// bool exprAdd();
+// bool exprMul();
+// bool exprPrefix();
+// bool factor();
 
 // program ::= ( defVar | defFunc | block )* FINISH
 bool program() {
@@ -138,9 +138,8 @@ bool defFunc() {
                                 if (consume(END)) {
                                     return true;
                                 } else
-                                    tokenError(
-                                        "Missing 'end' after function "
-                                        "definition");
+                                    tokenError("Missing 'end' after function "
+                                               "definition");
                             }
                         } else {
                             tokenError("Invalid base type for function return");
@@ -260,7 +259,8 @@ bool expr() { return exprLogic(); }
 bool exprLogic() {
     if (exprAssign()) {
         while (consume(AND) || consume(OR)) {
-            if (!exprAssign()) tokenError("Invalid expression after 'and/or'");
+            if (!exprAssign())
+                tokenError("Invalid expression after 'and/or'");
         }
         return true;
     }
@@ -286,7 +286,8 @@ bool exprAssign() {
 bool exprComp() {
     if (exprAdd()) {
         if (consume(LESS) || consume(EQUAL)) {
-            if (!exprAdd()) tokenError("Invalid expression after '<' or '='");
+            if (!exprAdd())
+                tokenError("Invalid expression after '<' or '='");
         }
         return true;
     }
@@ -297,7 +298,8 @@ bool exprComp() {
 bool exprAdd() {
     if (exprMul()) {
         while (consume(ADD) || consume(SUB)) {
-            if (!exprMul()) tokenError("Invalid expression after '+' or '-'");
+            if (!exprMul())
+                tokenError("Invalid expression after '+' or '-'");
         }
         return true;
     }
