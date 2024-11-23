@@ -17,4 +17,3 @@ while(i<10)
 
 puts("PI=");
 putr(3.14159);
-max(a b);
