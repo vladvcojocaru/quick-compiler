@@ -5,6 +5,7 @@
 
 #include "../include/lexer.h"
 #include "../include/parser.h"
+#include "../include/ad.h"
 
 int iTk;         // the iterator in tokens
 Token *consumed; // the last consumed token
@@ -19,63 +20,23 @@ _Noreturn void tokenError(const char *fmt, ...) {
     fprintf(stderr, "\n");
     exit(EXIT_FAILURE);
 }
-//   printf("Added token: %s (code: %d) at line: %d\n", getTokenName(code),
-//   code,
+
 
 bool consume(int code) {
-    // Debug print to show the current token and the expected token code
-    // printf("Attempting to consume token: %s (code: %d), ",
-    //        getTokenName(tokens[iTk].code), tokens[iTk].code);
-
-    // if (tokens[iTk].code == ID || tokens[iTk].code == STRING) {
-    //     printf("text: %s, ", tokens[iTk].text);
-    // } else if (tokens[iTk].code == INT) {
-    //     printf("integer value: %d, ", tokens[iTk].i);
-    // } else if (tokens[iTk].code == REAL) {
-    //     printf("real value: %f, ", tokens[iTk].r);
-    // }
-
-    // printf("expected: %s, line: %d\n", getTokenName(code), tokens[iTk].line);
-
+    
     if (tokens[iTk].code == code) {
         consumed = &tokens[iTk++];
-        // Debug print to confirm successful consumption of a token
-        // printf("Consumed token: %s (code: %d) at line: %d\n",
-        //        getTokenName(consumed->code), consumed->code, consumed->line);
+       
         return true;
     }
 
-    // Debug print when token does not match expected code
-    // printf("Failed to consume token: %s (code: %d), expected: %s, line:
-    // %d\n",
-    //        getTokenName(tokens[iTk].code), tokens[iTk].code,
-    //        getTokenName(code), tokens[iTk].line);
 
     return false;
 }
 
-// Function definitions
-// bool consume(int code);
-// bool program();
-// void parse();
-// bool defVar();
-// bool baseType();
-// bool defFunc();
-// bool block();
-// bool funcParams();
-// bool funcParam();
-// bool instr();
-// bool expr();
-// bool exprLogic();
-// bool exprAssign();
-// bool exprComp();
-// bool exprAdd();
-// bool exprMul();
-// bool exprPrefix();
-// bool factor();
-
 // program ::= ( defVar | defFunc | block )* FINISH
 bool program() {
+    addDomain();
     for (;;) {
         if (defVar()) {
         } else if (defFunc()) {
@@ -84,6 +45,7 @@ bool program() {
             break;
     }
     if (consume(FINISH)) {
+        delDomain();
         return true;
     } else
         tokenError("syntax error");
@@ -99,8 +61,20 @@ void parse() {
 bool defVar() {
     if (consume(VAR)) {
         if (consume(ID)) {
+            
+            const char *name = consumed->text;
+            Symbol *s = searchInCurrentDomain(name);
+            if(s){
+                tokenError("symbol redefinition: %s", name);
+            }
+            s = addSymbol(name, KIND_VAR);
+            s->local = crtFn != NULL;
+
             if (consume(COLON)) {
                 if (baseType()) {
+
+                        s->type = ret.type;
+
                     if (consume(SEMICOLON)) {
                         return true;
                     } else
@@ -116,7 +90,15 @@ bool defVar() {
 
 // baseType ::= TYPE_INT | TYPE_REAL | TYPE_STR
 bool baseType() {
-    if (consume(TYPE_INT) || consume(TYPE_REAL) || consume(TYPE_STR)) {
+   
+    if (consume(TYPE_INT)){
+        ret.type = TYPE_INT;
+        return true;
+    } else if (consume(TYPE_REAL)){
+        ret.type = TYPE_REAL;
+        return true;
+    } else if (consume(TYPE_STR)){
+        ret.type = TYPE_STR;
         return true;
     }
     return false;
@@ -127,15 +109,32 @@ bool baseType() {
 bool defFunc() {
     if (consume(FUNCTION)) {
         if (consume(ID)) {
+            // DOMAIN CODE
+            const char *name = consumed->text;
+            Symbol *s = searchInCurrentDomain(name);
+            if(s){
+                tokenError("symbol redefinition: %s", name);
+            }
+            crtFn = addSymbol(name, KIND_FN);
+            crtFn->args = NULL;
+            addDomain();
+
             if (consume(LPAR)) {
                 funcParams();
                 if (consume(RPAR)) {
                     if (consume(COLON)) {
                         if (baseType()) {
+                            // DOMAIN CODE
+                            crtFn->type = ret.type;
+
                             while (defVar()) {
                             }
                             if (block()) {
                                 if (consume(END)) {
+                                    // DOMAIN CODE
+                                    delDomain();
+                                    crtFn = NULL;
+
                                     return true;
                                 } else
                                     tokenError("Missing 'end' after function "
@@ -181,8 +180,21 @@ bool funcParams() {
 // funcParam ::= ID COLON baseType
 bool funcParam() {
     if (consume(ID)) {
+        // DOMAIN CODE
+        const char *name = consumed->text;
+        Symbol *s = searchInCurrentDomain(name);
+        if(s){
+            tokenError("symbol redefinition: %s", name);
+        } 
+        s = addSymbol(name, KIND_ARG);
+        Symbol *sFnParam = addFnArg(crtFn, name);
+
         if (consume(COLON)) {
             if (baseType()) {
+                // DOMAIN CODE
+                s->type = ret.type;
+                sFnParam->type = ret.type;
+
                 return true;
             } else
                 tokenError("Invalid base type in function parameter");
