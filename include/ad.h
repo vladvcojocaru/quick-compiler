@@ -2,50 +2,64 @@
 
 #include <stdbool.h>
 
+// Represents the type and properties of a return value during parsing
 typedef struct {
-    int type;  // Type_*
-    bool lval; // if it is a left-value (required for types analysis)
+    int type;  // Type of the value (e.g., integer, float, etc.)
+    bool lval; // Whether the value is a left-value (modifiable)
 } Ret;
 
-extern Ret ret; // used to store data returned froom some syntactic rules
+// Global variable to store return values from parsing rules
+extern Ret ret;
 
+// Enumerations for different kinds of symbols in the symbol table
 enum { KIND_VAR, KIND_ARG, KIND_FN };
 
+// Forward declaration for Symbol structure
 struct Symbol;
 typedef struct Symbol Symbol;
 
+// Represents an identifier (variable, function, or argument) in the symbol table
 struct Symbol {
-    const char *name; // reference to a name stored in a token
-    int kind;         // KIND_*
-    int type;         // TYPE_* from token
+    const char *name; // Name of the identifier (points to a token's name)
+    int kind;         // Type of the symbol (KIND_VAR, KIND_ARG, or KIND_FN)
+    int type;         // Data type of the symbol (e.g., TYPE_INT, TYPE_FLOAT)
     union {
-        Symbol *args; // for functions: the list with the function args
-        bool local;   // for vars: if it is local
+        Symbol *args; // For functions, points to a linked list of arguments
+        bool local;   // For variables, indicates whether it is a local variable
     };
-    Symbol *next; // link to the next Symbol in list
+    Symbol *next;     // Pointer to the next symbol in the linked list
 };
 
+// Forward declaration for Domain structure
 struct Domain;
 typedef struct Domain Domain;
 
+// Represents a scope or "domain" in the program
 struct Domain {
-    Domain *parent;  // the parent of this domain or NULL for the global domain
-    Symbol *symbols; // simple linked list of symbols
+    Domain *parent;   // Pointer to the parent domain (or NULL if global scope)
+    Symbol *symbols;  // Linked list of symbols defined in this domain
 };
 
-extern Domain
-    *symTable; // the symbols table (implemented as a stack of domains)
+// Global pointer to the current domain (top of the symbol table stack)
+extern Domain *symTable;
 
-// pointer the symbol of current function, if a function is parsed
-// or NULL outside functions
+// Pointer to the current function being parsed (NULL if outside a function)
 extern Symbol *crtFn;
 
-Domain *addDomain(); // adds a new domain to ST as the current domain
-void delDomain(); // deletes the current domain from ST and returns the last one
-Symbol *searchInCurrentDomain(
-    const char *name); // searches a symbol by name inly in the current domain
-Symbol *searchSymbol(const char *name); // searches in all domains
-Symbol *addSymbol(const char *name,
-                  int kind); // adds a symbol to the current domin
-Symbol *addFnArg(Symbol *fn,
-                 const char *argName); // adds an argument to the symbol fn
+// Adds a new scope to the symbol table and makes it the current domain
+Domain *addDomain();
+
+// Removes the current domain from the symbol table, reverting to the parent
+void delDomain();
+
+// Searches for a symbol by name in the current domain only
+Symbol *searchInCurrentDomain(const char *name);
+
+// Searches for a symbol by name in the current and parent domains
+Symbol *searchSymbol(const char *name);
+
+// Adds a new symbol (variable, function, etc.) to the current domain
+Symbol *addSymbol(const char *name, int kind);
+
+// Adds an argument to a function's symbol
+Symbol *addFnArg(Symbol *fn, const char *argName);
