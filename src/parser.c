@@ -3,9 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "../include/ad.h"
 #include "../include/lexer.h"
 #include "../include/parser.h"
-#include "../include/ad.h"
 
 int iTk;         // the iterator in tokens
 Token *consumed; // the last consumed token
@@ -21,15 +21,13 @@ _Noreturn void tokenError(const char *fmt, ...) {
     exit(EXIT_FAILURE);
 }
 
-
 bool consume(int code) {
-    
+
     if (tokens[iTk].code == code) {
         consumed = &tokens[iTk++];
-       
+
         return true;
     }
-
 
     return false;
 }
@@ -61,10 +59,10 @@ void parse() {
 bool defVar() {
     if (consume(VAR)) {
         if (consume(ID)) {
-            
+
             const char *name = consumed->text;
             Symbol *s = searchInCurrentDomain(name);
-            if(s){
+            if (s) {
                 tokenError("symbol redefinition: %s", name);
             }
             s = addSymbol(name, KIND_VAR);
@@ -73,7 +71,7 @@ bool defVar() {
             if (consume(COLON)) {
                 if (baseType()) {
 
-                        s->type = ret.type;
+                    s->type = ret.type;
 
                     if (consume(SEMICOLON)) {
                         return true;
@@ -90,14 +88,14 @@ bool defVar() {
 
 // baseType ::= TYPE_INT | TYPE_REAL | TYPE_STR
 bool baseType() {
-   
-    if (consume(TYPE_INT)){
+
+    if (consume(TYPE_INT)) {
         ret.type = TYPE_INT;
         return true;
-    } else if (consume(TYPE_REAL)){
+    } else if (consume(TYPE_REAL)) {
         ret.type = TYPE_REAL;
         return true;
-    } else if (consume(TYPE_STR)){
+    } else if (consume(TYPE_STR)) {
         ret.type = TYPE_STR;
         return true;
     }
@@ -112,7 +110,7 @@ bool defFunc() {
             // DOMAIN CODE
             const char *name = consumed->text;
             Symbol *s = searchInCurrentDomain(name);
-            if(s){
+            if (s) {
                 tokenError("symbol redefinition: %s", name);
             }
             crtFn = addSymbol(name, KIND_FN);
@@ -183,9 +181,9 @@ bool funcParam() {
         // DOMAIN CODE
         const char *name = consumed->text;
         Symbol *s = searchInCurrentDomain(name);
-        if(s){
+        if (s) {
             tokenError("symbol redefinition: %s", name);
-        } 
+        }
         s = addSymbol(name, KIND_ARG);
         Symbol *sFnParam = addFnArg(crtFn, name);
 

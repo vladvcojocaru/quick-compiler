@@ -18,7 +18,8 @@ enum { KIND_VAR, KIND_ARG, KIND_FN };
 struct Symbol;
 typedef struct Symbol Symbol;
 
-// Represents an identifier (variable, function, or argument) in the symbol table
+// Represents an identifier (variable, function, or argument) in the symbol
+// table
 struct Symbol {
     const char *name; // Name of the identifier (points to a token's name)
     int kind;         // Type of the symbol (KIND_VAR, KIND_ARG, or KIND_FN)
@@ -27,7 +28,7 @@ struct Symbol {
         Symbol *args; // For functions, points to a linked list of arguments
         bool local;   // For variables, indicates whether it is a local variable
     };
-    Symbol *next;     // Pointer to the next symbol in the linked list
+    Symbol *next; // Pointer to the next symbol in the linked list
 };
 
 // Forward declaration for Domain structure
@@ -36,8 +37,8 @@ typedef struct Domain Domain;
 
 // Represents a scope or "domain" in the program
 struct Domain {
-    Domain *parent;   // Pointer to the parent domain (or NULL if global scope)
-    Symbol *symbols;  // Linked list of symbols defined in this domain
+    Domain *parent;  // Pointer to the parent domain (or NULL if global scope)
+    Symbol *symbols; // Linked list of symbols defined in this domain
 };
 
 // Global pointer to the current domain (top of the symbol table stack)
