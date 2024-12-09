@@ -66,7 +66,7 @@ bool defVar() {
                 tokenError("symbol redefinition: %s", name);
             }
             s = addSymbol(name, KIND_VAR);
-            s->local = crtFn != NULL;
+            s->local = (crtFn != NULL);
 
             if (consume(COLON)) {
                 if (baseType()) {
