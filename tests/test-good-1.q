@@ -1,6 +1,6 @@
 # program de test
 
-function max(x:int, y:int):int
+function max(y:int, y:int):int
     if(x<y)
         return y;
         else
@@ -10,6 +10,8 @@ function max(x:int, y:int):int
 
 var i:int;
 i=0;    # iterator
+
+x = 2;
 while(i<10)
     puti(max(i,5));
     i=i+1;

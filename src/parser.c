@@ -63,7 +63,7 @@ bool defVar() {
             const char *name = consumed->text;
             Symbol *s = searchInCurrentDomain(name);
             if (s) {
-                tokenError("symbol redefinition: %s", name);
+                tokenError("symbol redefinition: %s in current domain", name);
             }
             s = addSymbol(name, KIND_VAR);
             s->local = (crtFn != NULL);
