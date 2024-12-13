@@ -23,7 +23,7 @@ typedef struct Symbol Symbol;
 struct Symbol {
     const char *name; // Name of the identifier (points to a token's name)
     int kind;         // Type of the symbol (KIND_VAR, KIND_ARG, or KIND_FN)
-    int type;         // Data type of the symbol (e.g., TYPE_INT, TYPE_FLOAT)
+    int type;         // Data type of the symbol (e.g., TYPE_INT, TYPE_REAL)
     union {
         Symbol *args; // For functions, points to a linked list of arguments
         bool local;   // For variables, indicates whether it is a local variable
