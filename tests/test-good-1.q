@@ -1,6 +1,6 @@
 # program de test
 
-function max(y:int, y:int):int
+function max(x:int, y:int):int
     if(x<y)
         return y;
         else
