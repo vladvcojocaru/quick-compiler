@@ -1,5 +1,5 @@
 # Directories
-logs/
+#logs/
 bin/
 examples/
 .vscode/

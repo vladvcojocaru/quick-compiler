@@ -1,0 +1,6 @@
+error in line 1: Missing ':' in function parameter
+creates a new domain
+	adds symbol myFunc
+creates a new domain
+	adds symbol x
+	adds symbol x as argument
