@@ -1,7 +1,7 @@
 # Directories
 #logs/
 bin/
-examples/
+resources/
 .vscode/
 # Files
 *.o
