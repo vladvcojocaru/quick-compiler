@@ -11,7 +11,7 @@ LOGS_DIR = logs
 
 # Files
 TARGET = $(BIN_DIR)/my_program
-SRC_FILES = $(SRC_DIR)/main.c $(SRC_DIR)/lexer.c $(SRC_DIR)/utils.c $(SRC_DIR)/parser.c $(SRC_DIR)/ad.c
+SRC_FILES = $(SRC_DIR)/main.c $(SRC_DIR)/lexer.c $(SRC_DIR)/utils.c $(SRC_DIR)/parser.c $(SRC_DIR)/ad.c $(SRC_DIR)/at.c
 OBJ_FILES = $(SRC_FILES:.c=.o)
 
 # Default target: compile the program
@@ -51,4 +51,3 @@ clean:
 
 # Phony targets
 .PHONY: all clean run test
-

@@ -7,4 +7,4 @@
 void addPredefinedFns();
 
 // sets the global variable "ret" with the resulted type from a rule
-void setRet(int type, bool lval);
+void setRet(int type,bool lval);

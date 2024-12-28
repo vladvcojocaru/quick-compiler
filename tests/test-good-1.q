@@ -11,7 +11,6 @@ function max(x:int, y:int):int
 var i:int;
 i=0;    # iterator
 
-x = 2;
 while(i<10)
     puti(max(i,5));
     i=i+1;

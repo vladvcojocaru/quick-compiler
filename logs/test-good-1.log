@@ -1,4 +1,10 @@
 creates a new domain
+	adds symbol puti
+	adds symbol arg as argument
+	adds symbol putr
+	adds symbol arg as argument
+	adds symbol puts
+	adds symbol arg as argument
 	adds symbol max
 creates a new domain
 	adds symbol x
@@ -15,6 +21,12 @@ deletes the current domain
 	deletes the symbol max
 	deletes the symbol x
 	deletes the symbol y
+	deletes the symbol puts
+	deletes the symbol arg
+	deletes the symbol putr
+	deletes the symbol arg
+	deletes the symbol puti
+	deletes the symbol arg
 returns to the parent domain
 Tokens: 
 3 FUNCTION
@@ -54,41 +66,37 @@ Tokens:
 12 ASSIGN
 12 INT:0
 12 SEMICOLON
-14 ID:x
-14 ASSIGN
-14 INT:2
-14 SEMICOLON
-15 WHILE
+14 WHILE
+14 LPAR
+14 ID:i
+14 LESS
+14 INT:10
+14 RPAR
+15 ID:puti
+15 LPAR
+15 ID:max
 15 LPAR
 15 ID:i
-15 LESS
-15 INT:10
+15 COMMA
+15 INT:5
 15 RPAR
-16 ID:puti
-16 LPAR
-16 ID:max
-16 LPAR
+15 RPAR
+15 SEMICOLON
 16 ID:i
-16 COMMA
-16 INT:5
-16 RPAR
-16 RPAR
+16 ASSIGN
+16 ID:i
+16 ADD
+16 INT:1
 16 SEMICOLON
-17 ID:i
-17 ASSIGN
-17 ID:i
-17 ADD
-17 INT:1
-17 SEMICOLON
-18 END
-20 ID:puts
+17 END
+19 ID:puts
+19 LPAR
+19 STRING:PI=
+19 RPAR
+19 SEMICOLON
+20 ID:putr
 20 LPAR
-20 STRING:PI=
+20 REAL:3.14
 20 RPAR
 20 SEMICOLON
-21 ID:putr
-21 LPAR
-21 REAL:3.14
-21 RPAR
-21 SEMICOLON
-22 FINISH
+21 FINISH

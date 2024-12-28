@@ -1,68 +1,13 @@
+error in line 11: different types for the operands of * or /
 creates a new domain
+	adds symbol puti
+	adds symbol arg as argument
+	adds symbol putr
+	adds symbol arg as argument
+	adds symbol puts
+	adds symbol arg as argument
 	adds symbol principal
 	adds symbol rate
 	adds symbol time
 	adds symbol interest
 	adds symbol totalAmount
-deletes the current domain
-	deletes the symbol totalAmount
-	deletes the symbol interest
-	deletes the symbol time
-	deletes the symbol rate
-	deletes the symbol principal
-returns to the parent domain
-Tokens: 
-1 VAR
-1 ID:principal
-1 COLON
-1 TYPE_REAL
-1 SEMICOLON
-2 VAR
-2 ID:rate
-2 COLON
-2 TYPE_REAL
-2 SEMICOLON
-3 VAR
-3 ID:time
-3 COLON
-3 TYPE_INT
-3 SEMICOLON
-4 VAR
-4 ID:interest
-4 COLON
-4 TYPE_REAL
-4 SEMICOLON
-5 VAR
-5 ID:totalAmount
-5 COLON
-5 TYPE_REAL
-5 SEMICOLON
-7 ID:principal
-7 ASSIGN
-7 REAL:1000.00
-7 SEMICOLON
-8 ID:rate
-8 ASSIGN
-8 REAL:5.00
-8 SEMICOLON
-9 ID:time
-9 ASSIGN
-9 INT:3
-9 SEMICOLON
-11 ID:interest
-11 ASSIGN
-11 ID:principal
-11 MUL
-11 ID:rate
-11 MUL
-11 ID:time
-11 DIV
-11 INT:100
-11 SEMICOLON
-12 ID:totalAmount
-12 ASSIGN
-12 ID:principal
-12 ADD
-12 ID:interest
-12 SEMICOLON
-14 FINISH

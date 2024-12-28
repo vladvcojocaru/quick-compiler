@@ -1,4 +1,10 @@
 creates a new domain
+	adds symbol puti
+	adds symbol arg as argument
+	adds symbol putr
+	adds symbol arg as argument
+	adds symbol puts
+	adds symbol arg as argument
 	adds symbol sumUpTo
 creates a new domain
 	adds symbol n
@@ -13,6 +19,12 @@ returns to the parent domain
 deletes the current domain
 	deletes the symbol sumUpTo
 	deletes the symbol n
+	deletes the symbol puts
+	deletes the symbol arg
+	deletes the symbol putr
+	deletes the symbol arg
+	deletes the symbol puti
+	deletes the symbol arg
 returns to the parent domain
 Tokens: 
 1 FUNCTION
