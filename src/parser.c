@@ -5,6 +5,7 @@
 
 #include "../include/ad.h"
 #include "../include/at.h"
+#include "../include/gen.h"
 #include "../include/lexer.h"
 #include "../include/parser.h"
 
@@ -38,6 +39,13 @@ bool program() {
     addDomain();
     // AT
     addPredefinedFns();
+
+    // Gen
+    crtCode = &tMain;
+    crtVar = &tBegin;
+    Text_write(&tBegin, "#include\"quick.h\"\n\n");
+    Text_write(&tMain, "\nint main(){\n");
+
     for (;;) {
         if (defVar()) {
         } else if (defFunc()) {
@@ -47,6 +55,19 @@ bool program() {
     }
     if (consume(FINISH)) {
         delDomain();
+
+        // Gen
+        Text_write(&tMain, "return 0;\n}\n");
+        FILE *fis = fopen("1.c", "w");
+        if (!fis) {
+            printf("cannot write to file 1.c\n");
+            exit(EXIT_FAILURE);
+        }
+        fwrite(tBegin.buf, sizeof(char), tBegin.n, fis);
+        fwrite(tFunctions.buf, sizeof(char), tFunctions.n, fis);
+        fwrite(tMain.buf, sizeof(char), tMain.n, fis);
+        fclose(fis);
+
         return true;
     } else
         tkerr("syntax error");
@@ -77,6 +98,9 @@ bool defVar() {
                     s->type = ret.type;
 
                     if (consume(SEMICOLON)) {
+                        // Gen
+                        Text_write(crtVar, "%s %s;\n", cType(ret.type), name);
+
                         return true;
                     } else
                         tkerr("Missing ';' after variable declaration");
@@ -119,6 +143,11 @@ bool defFunc() {
             crtFn = addSymbol(name, KIND_FN);
             crtFn->args = NULL;
             addDomain();
+            // Gen
+            crtCode = &tFunctions;
+            crtVar = &tFunctions;
+            Text_clear(&tFnHeader);
+            Text_write(&tFnHeader, "%s(", name);
 
             if (consume(LPAR)) {
                 funcParams();
@@ -128,6 +157,10 @@ bool defFunc() {
                             // DOMAIN CODE
                             crtFn->type = ret.type;
 
+                            // Gen
+                            Text_write(&tFunctions, "\n%s %s){\n",
+                                       cType(ret.type), tFnHeader.buf);
+
                             while (defVar()) {
                             }
                             if (block()) {
@@ -136,6 +169,10 @@ bool defFunc() {
                                     delDomain();
                                     crtFn = NULL;
 
+                                    // Gen
+                                    Text_write(&tFunctions, "}\n");
+                                    crtCode = &tMain;
+                                    crtVar = &tBegin;
                                     return true;
                                 } else
                                     tkerr("Missing 'end' after function "
@@ -170,6 +207,8 @@ bool block() {
 bool funcParams() {
     if (funcParam()) {
         while (consume(COMMA)) {
+            // Gen
+            Text_write(&tFnHeader, ",");
             if (!funcParam())
                 tkerr("Invalid function parameter after ','");
         }
@@ -196,6 +235,9 @@ bool funcParam() {
                 s->type = ret.type;
                 sFnParam->type = ret.type;
 
+                // Gen
+                Text_write(&tFnHeader, "%s %s", cType(ret.type), name);
+
                 return true;
             } else
                 tkerr("Invalid base type in function parameter");
@@ -211,6 +253,8 @@ bool instr() {
     int start = iTk;
     if (expr()) {
         if (consume(SEMICOLON)) {
+            // Gen
+            Text_write(crtCode, ";\n");
             return true;
         } else {
             tkerr("Expected ';' after expression");
@@ -218,21 +262,41 @@ bool instr() {
 
         iTk = start;
     }
+    // Might have to add Text_write(crtCode,";\n"); here too
     if (consume(SEMICOLON)) {
         return true;
     }
     if (consume(IF)) {
         if (consume(LPAR)) {
+
+            // Gen
+            Text_write(crtCode, "if(");
+
             if (expr()) {
                 // AT
                 if (ret.type == TYPE_STR) {
                     tkerr("the if condition must have type int or real");
                 }
                 if (consume(RPAR)) {
+
+                    // Gen
+                    Text_write(crtCode, "){\n");
+
                     if (block()) {
+
+                        // Gen
+                        Text_write(crtCode, "}\n");
+
                         if (consume(ELSE)) {
+
+                            // Gen
+                            Text_write(crtCode, "else{\n");
+
                             if (!block())
                                 tkerr("Expected block after 'else'");
+
+                            // Gen
+                            Text_write(crtCode, "}\n");
                         }
                         if (consume(END)) {
                             return true;
@@ -245,6 +309,9 @@ bool instr() {
             }
         }
     } else if (consume(RETURN)) {
+        // Gen
+        Text_write(crtCode, "return ");
+
         if (expr()) {
             // AT
             if (!crtFn) {
@@ -256,12 +323,17 @@ bool instr() {
             }
 
             if (consume(SEMICOLON)) {
+                Text_write(crtCode, ";\n");
                 return true;
             } else
                 tkerr("Missing ';' after return statement");
         } else
             tkerr("Missing expression in return statement");
     } else if (consume(WHILE)) {
+
+        // Gen
+        Text_write(crtCode, "while(");
+
         if (consume(LPAR)) {
             if (expr()) {
                 // AT
@@ -270,8 +342,13 @@ bool instr() {
                 }
 
                 if (consume(RPAR)) {
+                    // Gen
+                    Text_write(crtCode, "){\n");
+
                     if (block()) {
                         if (consume(END)) {
+                            // Gen
+                            Text_write(crtCode, "}\n");
                             return true;
                         } else
                             tkerr("Missing 'end' after 'while' loop");
@@ -282,8 +359,6 @@ bool instr() {
     }
     return false;
 }
-
-// !HERE IT WORKS
 
 // expr ::= exprLogic
 bool expr() { return exprLogic(); }
@@ -296,6 +371,15 @@ bool exprLogic() {
             Ret leftType = ret;
             if (leftType.type == TYPE_STR) {
                 tkerr("the left operand of && or || cannot be of type str");
+            }
+
+            // Gen
+            //? Might not work not sure
+            if (consumed->code == AND) {
+                Text_write(crtCode, "&&");
+
+            } else {
+                Text_write(crtCode, "||");
             }
 
             if (!exprAssign())
@@ -320,6 +404,9 @@ bool exprAssign() {
         const char *name = consumed->text;
 
         if (consume(ASSIGN)) {
+            // Gen
+            Text_write(crtCode, "%s=", name);
+
             if (exprComp()) {
                 // AT
                 Symbol *s = searchSymbol(name);
@@ -351,6 +438,14 @@ bool exprComp() {
             // AT
             Ret leftType = ret;
 
+            // Gen
+            //? Might not work check
+            if (consumed->code == LESS) {
+                Text_write(crtCode, "<");
+            } else {
+                Text_write(crtCode, "==");
+            }
+
             if (!exprAdd())
                 tkerr("Invalid expression after '<' or '='");
             // AT
@@ -372,6 +467,13 @@ bool exprAdd() {
             if (leftType.type == TYPE_STR)
                 tkerr("the operands of + or - cannot be of type str");
 
+            // Gen
+            if (consumed->code == ADD) {
+                Text_write(crtCode, "+");
+            } else {
+                Text_write(crtCode, "-");
+            }
+
             if (!exprMul())
                 tkerr("Invalid expression after '+' or '-'");
             // AT
@@ -392,6 +494,13 @@ bool exprMul() {
             Ret leftType = ret;
             if (leftType.type == TYPE_STR)
                 tkerr("the operands of * or / cannot be of type str");
+
+            // Gen
+            if (consumed->code == MUL) {
+                Text_write(crtCode, "*");
+            } else {
+                Text_write(crtCode, "/");
+            }
 
             if (!exprPrefix())
                 tkerr("Invalid expression after '*' or '/'");
@@ -415,6 +524,8 @@ bool exprMul() {
 
 bool exprPrefix() {
     if (consume(SUB)) {
+        // Gen
+        Text_write(crtCode, "-");
         if (factor()) {
             // AT
             if (ret.type == TYPE_STR)
@@ -426,6 +537,9 @@ bool exprPrefix() {
             return false;
     }
     if (consume(NOT)) {
+        // Gen
+        Text_write(crtCode, "!");
+
         if (factor()) {
             // AT
             if (ret.type == TYPE_STR)
@@ -458,7 +572,8 @@ bool exprPrefix() {
 //             if (expr()) {
 //                 while (consume(COMMA)) {
 //                     if (!expr())
-//                         tkerr("Invalid expression after ',' in function call");
+//                         tkerr("Invalid expression after ',' in function
+//                         call");
 //                 }
 //             }
 //             if (consume(RPAR)) {
@@ -473,19 +588,29 @@ bool exprPrefix() {
 bool factor() {
     if (consume(INT)) {
         setRet(TYPE_INT, false);
+        // Gen
+        Text_write(crtCode, "%d", consumed->i);
         return true;
     }
     if (consume(REAL)) {
         setRet(TYPE_REAL, false);
+        // Gen
+        Text_write(crtCode, "%g", consumed->r);
         return true;
     }
     if (consume(STRING)) {
         setRet(TYPE_STR, false);
+        // Gen
+        Text_write(crtCode, "\"%s\"", consumed->text);
         return true;
     }
     if (consume(LPAR)) {
+        // Gen
+        Text_write(crtCode, "(");
         if (expr()) {
             if (consume(RPAR)) {
+                // Gen
+                Text_write(crtCode, ")");
                 return true;
             } else
                 tkerr("Missing ')' after expression");
@@ -495,6 +620,8 @@ bool factor() {
 
     if (consume(ID)) {
         Symbol *s = searchSymbol(consumed->text);
+        // Gen
+        Text_write(crtCode, "%s", s->name);
         if (!s)
             tkerr("undefined symbol: %s", consumed->text);
 
@@ -503,6 +630,9 @@ bool factor() {
                 tkerr("%s cannot be called, because it is not a function",
                       s->name);
             Symbol *argDef = s->args;
+
+            // Gen
+            Text_write(crtCode,"(");
 
             if (expr()) {
                 if (!argDef)
@@ -515,6 +645,8 @@ bool factor() {
                 argDef = argDef->next;
 
                 while (consume(COMMA)) {
+                    // Gen
+                    Text_write(crtCode,",");
                     if (!expr())
                         tkerr("Invalid expression after ',' in function call");
 
@@ -535,6 +667,8 @@ bool factor() {
                     tkerr("the function %s is called with too few arguments",
                           s->name);
                 setRet(s->type, false);
+                // Gen
+                Text_write(crtCode,")");
                 return true;
             } else {
                 // VERIFICA
