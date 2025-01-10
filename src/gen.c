@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../include/ad.h"
 #include "../include/gen.h"
 #include "../include/lexer.h"
 
