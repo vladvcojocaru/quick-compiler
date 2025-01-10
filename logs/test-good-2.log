@@ -1,0 +1,13 @@
+error in line 11: different types for the operands of * or /
+creates a new domain
+	adds symbol puti
+	adds symbol arg as argument
+	adds symbol putr
+	adds symbol arg as argument
+	adds symbol puts
+	adds symbol arg as argument
+	adds symbol principal
+	adds symbol rate
+	adds symbol time
+	adds symbol interest
+	adds symbol totalAmount

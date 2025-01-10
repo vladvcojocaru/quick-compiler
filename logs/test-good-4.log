@@ -1,0 +1,80 @@
+creates a new domain
+	adds symbol puti
+	adds symbol arg as argument
+	adds symbol putr
+	adds symbol arg as argument
+	adds symbol puts
+	adds symbol arg as argument
+	adds symbol sumUpTo
+creates a new domain
+	adds symbol n
+	adds symbol n as argument
+	adds symbol sum
+	adds symbol counter
+deletes the current domain
+	deletes the symbol counter
+	deletes the symbol sum
+	deletes the symbol n
+returns to the parent domain
+deletes the current domain
+	deletes the symbol sumUpTo
+	deletes the symbol n
+	deletes the symbol puts
+	deletes the symbol arg
+	deletes the symbol putr
+	deletes the symbol arg
+	deletes the symbol puti
+	deletes the symbol arg
+returns to the parent domain
+Tokens: 
+1 FUNCTION
+1 ID:sumUpTo
+1 LPAR
+1 ID:n
+1 COLON
+1 TYPE_INT
+1 RPAR
+1 COLON
+1 TYPE_INT
+2 VAR
+2 ID:sum
+2 COLON
+2 TYPE_INT
+2 SEMICOLON
+3 VAR
+3 ID:counter
+3 COLON
+3 TYPE_INT
+3 SEMICOLON
+5 ID:sum
+5 ASSIGN
+5 INT:0
+5 SEMICOLON
+6 ID:counter
+6 ASSIGN
+6 INT:1
+6 SEMICOLON
+8 WHILE
+8 LPAR
+8 ID:counter
+8 LESS
+8 ID:n
+8 RPAR
+9 ID:sum
+9 ASSIGN
+9 ID:sum
+9 ADD
+9 ID:counter
+9 SEMICOLON
+10 ID:counter
+10 ASSIGN
+10 ID:counter
+10 ADD
+10 INT:1
+10 SEMICOLON
+11 END
+13 RETURN
+13 ID:sum
+13 SEMICOLON
+14 END
+17 FINISH
