@@ -632,7 +632,7 @@ bool factor() {
             Symbol *argDef = s->args;
 
             // Gen
-            Text_write(crtCode,"(");
+            Text_write(crtCode, "(");
 
             if (expr()) {
                 if (!argDef)
@@ -646,7 +646,7 @@ bool factor() {
 
                 while (consume(COMMA)) {
                     // Gen
-                    Text_write(crtCode,",");
+                    Text_write(crtCode, ",");
                     if (!expr())
                         tkerr("Invalid expression after ',' in function call");
 
@@ -668,7 +668,7 @@ bool factor() {
                           s->name);
                 setRet(s->type, false);
                 // Gen
-                Text_write(crtCode,")");
+                Text_write(crtCode, ")");
                 return true;
             } else {
                 // VERIFICA
