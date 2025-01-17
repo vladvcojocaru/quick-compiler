@@ -262,7 +262,7 @@ bool instr() {
 
         iTk = start;
     }
-    // Might have to add Text_write(crtCode,";\n"); here too
+
     if (consume(SEMICOLON)) {
         return true;
     }
@@ -429,7 +429,6 @@ bool exprAssign() {
     }
     return exprComp();
 }
-// !WORKS
 
 // exprComp ::= exprAdd ( ( LESS | EQUAL ) exprAdd )?
 bool exprComp() {
@@ -515,13 +514,6 @@ bool exprMul() {
 }
 
 // exprPrefix ::= ( SUB | NOT )? factor
-// bool exprPrefix() {
-//     if (consume(SUB) || consume(NOT)) {
-//         return factor();
-//     }
-//     return factor();
-// }
-
 bool exprPrefix() {
     if (consume(SUB)) {
         // Gen
@@ -555,36 +547,6 @@ bool exprPrefix() {
 }
 // factor ::= INT | REAL | STR | LPAR expr RPAR | ID ( LPAR ( expr ( COMMA expr
 // )* )? RPAR )?
-// bool factor() {
-//     if (consume(INT) || consume(REAL) || consume(STRING)) {
-//         return true;
-//     }
-//     if (consume(LPAR)) {
-//         if (expr()) {
-//             if (consume(RPAR)) {
-//                 return true;
-//             } else
-//                 tkerr("Missing ')' after expression");
-//         }
-//     }
-//     if (consume(ID)) {
-//         if (consume(LPAR)) {
-//             if (expr()) {
-//                 while (consume(COMMA)) {
-//                     if (!expr())
-//                         tkerr("Invalid expression after ',' in function
-//                         call");
-//                 }
-//             }
-//             if (consume(RPAR)) {
-//                 return true;
-//             } else
-//                 tkerr("Missing ')' after function arguments");
-//         }
-//         return true;
-//     }
-//     return false;
-// }
 bool factor() {
     if (consume(INT)) {
         setRet(TYPE_INT, false);
@@ -632,7 +594,7 @@ bool factor() {
             Symbol *argDef = s->args;
 
             // Gen
-            Text_write(crtCode, "(");
+            Text_write(crtCode,"(");
 
             if (expr()) {
                 if (!argDef)
@@ -646,7 +608,7 @@ bool factor() {
 
                 while (consume(COMMA)) {
                     // Gen
-                    Text_write(crtCode, ",");
+                    Text_write(crtCode,",");
                     if (!expr())
                         tkerr("Invalid expression after ',' in function call");
 
@@ -668,7 +630,7 @@ bool factor() {
                           s->name);
                 setRet(s->type, false);
                 // Gen
-                Text_write(crtCode, ")");
+                Text_write(crtCode,")");
                 return true;
             } else {
                 // VERIFICA
